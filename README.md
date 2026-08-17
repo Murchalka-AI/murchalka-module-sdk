@@ -4,9 +4,12 @@ Phase 0 SDK boundary for independently built Murchalka modules. It contains tran
 
 ## Build and conformance
 
-The SDK consumes pinned `Murchalka.ModuleProtocol.*` packages. In this Phase 0 workspace, `../murchalka-module-protocol/artifacts/packages` acts as the local package registry; released repositories use the configured immutable registry.
+The SDK consumes pinned `Murchalka.ModuleProtocol.*` packages from the `Murchalka-AI` GitHub Packages registry. Local development and CI use the same published package bytes so their lock-file content hashes remain identical.
+
+GitHub requires authentication for its NuGet registry even when packages are public. Before a local restore, provide a classic personal access token with `read:packages` through NuGet's source-credential environment variable. Do not commit the token:
 
 ```sh
+export NuGetPackageSourceCredentials_github='Username=YOUR_GITHUB_USERNAME;Password=YOUR_TOKEN;ValidAuthenticationTypes=Basic'
 dotnet restore --locked-mode
 dotnet test --no-restore
 dotnet run --project src/Murchalka.ModuleSdk.Testing -- samples/hello-world
@@ -18,7 +21,7 @@ The sample proves schema, contract/reference, lifecycle, cancellation, idempoten
 
 GitHub Actions validates the solution on Linux, Windows, and macOS. Pull requests and pushes to `main` run restore, Release build, tests, the sample repository conformance command, and a NuGet packaging check. The resulting CI packages are retained as workflow artifacts for 14 days.
 
-CI resolves `Murchalka.ModuleProtocol.*` exclusively from the `Murchalka-AI` GitHub Packages registry and resolves public dependencies from nuget.org. Before enabling SDK CI, publish the referenced Protocol version and make all Protocol packages public. GitHub's NuGet registry still requires authentication for public packages, so the workflow uses its short-lived `GITHUB_TOKEN` for restore.
+CI resolves `Murchalka.ModuleProtocol.*` exclusively from the `Murchalka-AI` GitHub Packages registry and resolves public dependencies from nuget.org. GitHub's NuGet registry still requires authentication for public packages, so the workflow uses its short-lived `GITHUB_TOKEN` for restore.
 
 Pushing a SemVer tag publishes `Murchalka.ModuleSdk.Abstractions` and `Murchalka.ModuleSdk.Testing` to GitHub Packages and creates or updates a GitHub Release with the `.nupkg` files attached:
 

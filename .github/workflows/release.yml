@@ -63,10 +63,10 @@ jobs:
           --username "${GITHUB_ACTOR}"
           --password "${PACKAGE_TOKEN}"
           --store-password-in-clear-text
-          --configfile NuGet.GitHub.Config
+          --configfile NuGet.Config
 
       - name: Restore dependencies
-        run: dotnet restore Murchalka.ModuleSdk.slnx --configfile NuGet.GitHub.Config
+        run: dotnet restore Murchalka.ModuleSdk.slnx --locked-mode --configfile NuGet.Config
 
       - name: Build
         run: >-
