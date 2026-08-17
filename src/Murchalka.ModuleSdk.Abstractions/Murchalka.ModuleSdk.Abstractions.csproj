@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Murchalka.ModuleSdk.Abstractions</PackageId>
+    <Description>Transport-free abstractions for Murchalka modules.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Murchalka.ModuleProtocol.Contracts" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,29 @@
+{
+  "apiVersion": "capabilities.murchalka.dev/v1",
+  "kind": "CapabilityContract",
+  "metadata": {
+    "id": "hello.greet",
+    "version": "1.0.0",
+    "category": "examples.greeting",
+    "description": "Returns a deterministic greeting without side effects."
+  },
+  "request": { "schema": "hello.greet.request.schema.json" },
+  "response": { "schema": "hello.greet.response.schema.json" },
+  "semantics": {
+    "interaction": "requestResponse",
+    "sideEffect": "none",
+    "idempotency": "readOnly",
+    "streaming": false,
+    "cancellation": "required",
+    "defaultTimeout": "2s",
+    "maxPayloadBytes": 4096
+  },
+  "security": {
+    "inputDataClasses": ["public"],
+    "outputDataClasses": ["public"],
+    "requiredPurpose": "greeting"
+  },
+  "errors": [
+    { "code": "invalid-name", "retryable": false, "description": "Name is empty or exceeds the public contract limit." }
+  ]
+}

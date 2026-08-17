@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PackageId>Murchalka.ModuleSdk.Testing</PackageId>
+    <Description>Schema and semantic conformance harness for Murchalka module repositories.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Murchalka.ModuleSdk.Abstractions/Murchalka.ModuleSdk.Abstractions.csproj" />
+    <PackageReference Include="Murchalka.ModuleProtocol.Json" />
+  </ItemGroup>
+</Project>

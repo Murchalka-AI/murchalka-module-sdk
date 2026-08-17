@@ -1,0 +1,79 @@
+apiVersion: modules.murchalka.dev/v1
+kind: Module
+metadata:
+  id: dev.murchalka.hello
+  name: Hello World
+  version: 1.0.0
+  publisher: dev.murchalka
+  description: Minimal transport-free Phase 0 conformance module
+  license: Apache-2.0
+  source: https://example.invalid/murchalka/hello
+  tags: [sample]
+compatibility:
+  moduleSdk: ">=0.1.0 <1.0.0"
+  runtime: ">=0.1.0 <1.0.0"
+  moduleProtocol: "1"
+artifacts:
+  runtime:
+    - id: hello-process
+      mode: process
+      os: [linux, windows, macos]
+      architectures: [x64, arm64]
+      entrypoint: runtime/process/Murchalka.Hello.Module
+      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      protocolVersion: 1
+      resources:
+        cpu: "1"
+        memory: 128Mi
+provides:
+  capabilities:
+    - id: hello.greet
+      category: examples.greeting
+      version: 1.0.0
+      contract: schemas/capabilities/hello.greet.json
+      cardinality: manyConsumers
+      scope: [global, tenant]
+      execution:
+        kind: requestResponse
+        idempotency: readOnly
+        timeout: 2s
+optional:
+  capabilities:
+    - requirementId: audit
+      capability: audit.record
+      version: ">=1.0.0 <2.0.0"
+      cardinality: zeroOrOne
+      fallback: continue-without-audit
+permissions:
+  data:
+    read: []
+    write: []
+  secrets: []
+  network:
+    outbound: []
+  filesystem:
+    read: [module-assets]
+    write: []
+  processes:
+    spawn: false
+  capabilities:
+    invoke: [audit.record]
+health:
+  startupTimeout: 10s
+  readiness:
+    interval: 10s
+    timeout: 2s
+    failureThreshold: 3
+  liveness:
+    interval: 30s
+    timeout: 2s
+    failureThreshold: 5
+activation:
+  mode: automaticWhenTrusted
+  failurePolicy: keepInactive
+  hotReload: true
+  drainTimeout: 10s
+upgrade:
+  strategy: sideBySide
+  rollbackWindow: 24h
+  stateMigration: none

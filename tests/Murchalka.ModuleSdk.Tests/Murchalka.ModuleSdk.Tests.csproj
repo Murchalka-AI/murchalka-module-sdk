@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1507</WarningsNotAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Murchalka.ModuleSdk.Abstractions/Murchalka.ModuleSdk.Abstractions.csproj" />
+    <ProjectReference Include="../../src/Murchalka.ModuleSdk.Testing/Murchalka.ModuleSdk.Testing.csproj" />
+    <ProjectReference Include="../../samples/hello-world/src/Murchalka.Hello.Module/Murchalka.Hello.Module.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../samples/hello-world/murchalka.module.yaml" CopyToOutputDirectory="PreserveNewest" Link="sample/murchalka.module.yaml" />
+    <None Include="../../samples/hello-world/schemas/**/*" CopyToOutputDirectory="PreserveNewest" Link="sample/schemas/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

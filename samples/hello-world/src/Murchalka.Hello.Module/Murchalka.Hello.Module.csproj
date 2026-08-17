@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Phase 0 conformance sample module.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../../src/Murchalka.ModuleSdk.Abstractions/Murchalka.ModuleSdk.Abstractions.csproj" />
+  </ItemGroup>
+</Project>
