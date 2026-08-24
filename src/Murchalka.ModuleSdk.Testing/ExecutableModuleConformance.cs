@@ -108,8 +108,12 @@ public sealed class ExecutableModuleConformance
         var value = long.Parse(duration[..^unitLength], System.Globalization.CultureInfo.InvariantCulture);
         return duration[^unitLength..] switch
         {
-            "ms" => TimeSpan.FromMilliseconds(value), "s" => TimeSpan.FromSeconds(value), "m" => TimeSpan.FromMinutes(value),
-            "h" => TimeSpan.FromHours(value), "d" => TimeSpan.FromDays(value), _ => throw new FormatException($"Unknown duration '{duration}'.")
+            "ms" => TimeSpan.FromMilliseconds(value),
+            "s" => TimeSpan.FromSeconds(value),
+            "m" => TimeSpan.FromMinutes(value),
+            "h" => TimeSpan.FromHours(value),
+            "d" => TimeSpan.FromDays(value),
+            _ => throw new FormatException($"Unknown duration '{duration}'.")
         };
     }
 

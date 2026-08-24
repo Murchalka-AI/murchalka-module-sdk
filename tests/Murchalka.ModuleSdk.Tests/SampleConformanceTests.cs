@@ -31,9 +31,9 @@ public sealed class SampleConformanceTests
         module.Configure(new ModuleBuilder());
         Assert.False(state.Activated);
 
-        await module.OnActivatedAsync(new ActivationContext(), CancellationToken.None);
-        await module.OnDrainAsync(CancellationToken.None);
-        await module.OnStoppedAsync(CancellationToken.None);
+        await module.OnActivatedAsync(new ActivationContext(), TestContext.Current.CancellationToken);
+        await module.OnDrainAsync(TestContext.Current.CancellationToken);
+        await module.OnStoppedAsync(TestContext.Current.CancellationToken);
 
         Assert.True(state.Activated);
         Assert.True(state.Draining);
@@ -47,13 +47,17 @@ public sealed class SampleConformanceTests
         var context = RequestContext();
 
         Assert.True(await ExecutableModuleConformance.HonorsPreCancelledTokenAsync(handler, context, new GreetRequest("Murchalka")));
-        Assert.True(await ExecutableModuleConformance.IsReplayStableAsync(handler, context, new GreetRequest("Murchalka")));
+        Assert.True(await ExecutableModuleConformance.IsReplayStableAsync(
+            handler,
+            context,
+            new GreetRequest("Murchalka"),
+            TestContext.Current.CancellationToken));
     }
 
     [Fact]
     public async Task Invalid_input_returns_normalized_non_retryable_error()
     {
-        var outcome = await new GreetHandler().HandleAsync(RequestContext(), new GreetRequest(""), CancellationToken.None);
+        var outcome = await new GreetHandler().HandleAsync(RequestContext(), new GreetRequest(""), TestContext.Current.CancellationToken);
 
         Assert.False(outcome.Succeeded);
         Assert.Equal("invalid-name", outcome.Error!.Code);

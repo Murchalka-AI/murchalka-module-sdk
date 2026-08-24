@@ -10,7 +10,7 @@ GitHub requires authentication for its NuGet registry even when packages are pub
 
 ```sh
 export NuGetPackageSourceCredentials_github='Username=YOUR_GITHUB_USERNAME;Password=YOUR_TOKEN;ValidAuthenticationTypes=Basic'
-dotnet restore --locked-mode
+dotnet restore
 dotnet test --no-restore
 dotnet run --project src/Murchalka.ModuleSdk.Testing -- samples/hello-world
 ```

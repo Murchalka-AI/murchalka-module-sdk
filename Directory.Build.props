@@ -7,7 +7,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);NU1507;NU1900</NoWarn>
     <Deterministic>true</Deterministic>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <DebugType>embedded</DebugType>
     <RepositoryUrl>https://github.com/Murchalka-AI/murchalka-module-sdk</RepositoryUrl>
     <PackageVersion>0.1.0</PackageVersion>
