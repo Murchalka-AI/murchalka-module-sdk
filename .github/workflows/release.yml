@@ -127,8 +127,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           IS_PRERELEASE: ${{ steps.version.outputs.prerelease }}
         run: |
-          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            gh release upload "${GITHUB_REF_NAME}" artifacts/packages/*.nupkg --clobber
+          if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release upload \
+              "${GITHUB_REF_NAME}" \
+              artifacts/packages/*.nupkg \
+              --clobber \
+              --repo "${GITHUB_REPOSITORY}"
             exit 0
           fi
 
@@ -136,4 +140,8 @@ jobs:
           if [[ "${IS_PRERELEASE}" == "true" ]]; then
             args+=(--prerelease)
           fi
-          gh release create "${GITHUB_REF_NAME}" artifacts/packages/*.nupkg "${args[@]}"
+          gh release create \
+            "${GITHUB_REF_NAME}" \
+            artifacts/packages/*.nupkg \
+            "${args[@]}" \
+            --repo "${GITHUB_REPOSITORY}"
