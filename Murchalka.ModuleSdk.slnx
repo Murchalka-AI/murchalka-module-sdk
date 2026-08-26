@@ -13,6 +13,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Murchalka.ModuleSdk.Abstractions/Murchalka.ModuleSdk.Abstractions.csproj" />
+    <Project Path="src/Murchalka.ModuleSdk.ProcessHost/Murchalka.ModuleSdk.ProcessHost.csproj" />
     <Project Path="src/Murchalka.ModuleSdk.Testing/Murchalka.ModuleSdk.Testing.csproj" />
   </Folder>
   <Folder Name="/samples/">

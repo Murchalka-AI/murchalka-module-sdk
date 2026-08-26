@@ -1,6 +1,8 @@
 # Murchalka Module SDK
 
-Phase 0 SDK boundary for independently built Murchalka modules. It contains transport-free lifecycle and capability abstractions plus a conformance harness. It does not host modules or implement Runtime product logic.
+The SDK boundary for independently built Murchalka modules. It contains transport-free lifecycle and capability abstractions, a conformance harness, and the reusable process-module protocol host. It does not implement Runtime product logic.
+
+`Murchalka.ModuleSdk.ProcessHost` owns the Runtime handshake, proof, framed transport, deadlines, cancellation, lifecycle control, and granted dependency invocation. A process module supplies only an `IModuleService`, keeping transport and security plumbing consistent across repositories.
 
 ## Build and conformance
 
@@ -23,7 +25,7 @@ GitHub Actions validates the solution on Linux, Windows, and macOS. Pull request
 
 CI resolves `Murchalka.ModuleProtocol.*` exclusively from the `Murchalka-AI` GitHub Packages registry and resolves public dependencies from nuget.org. GitHub's NuGet registry still requires authentication for public packages, so the workflow uses its short-lived `GITHUB_TOKEN` for restore.
 
-Pushing a SemVer tag publishes `Murchalka.ModuleSdk.Abstractions` and `Murchalka.ModuleSdk.Testing` to GitHub Packages and creates or updates a GitHub Release with the `.nupkg` files attached:
+Pushing a SemVer tag publishes `Murchalka.ModuleSdk.Abstractions`, `Murchalka.ModuleSdk.ProcessHost`, and `Murchalka.ModuleSdk.Testing` to GitHub Packages and creates or updates a GitHub Release with the `.nupkg` files attached:
 
 ```sh
 git tag v0.1.0

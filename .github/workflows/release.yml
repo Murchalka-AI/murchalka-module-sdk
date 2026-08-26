@@ -97,6 +97,7 @@ jobs:
         run: |
           projects=(
             src/Murchalka.ModuleSdk.Abstractions/Murchalka.ModuleSdk.Abstractions.csproj
+            src/Murchalka.ModuleSdk.ProcessHost/Murchalka.ModuleSdk.ProcessHost.csproj
             src/Murchalka.ModuleSdk.Testing/Murchalka.ModuleSdk.Testing.csproj
           )
           for project in "${projects[@]}"; do
