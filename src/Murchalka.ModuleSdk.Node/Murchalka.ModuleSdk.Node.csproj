@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><PackageId>Murchalka.ModuleSdk.Node</PackageId><Description>Transport-free Node module lifecycle and capability abstractions.</Description><GenerateDocumentationFile>true</GenerateDocumentationFile></PropertyGroup><ItemGroup><PackageReference Include="Murchalka.ModuleProtocol.Contracts" /></ItemGroup></Project>

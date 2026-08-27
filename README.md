@@ -4,6 +4,8 @@ The SDK boundary for independently built Murchalka modules. It contains transpor
 
 `Murchalka.ModuleSdk.ProcessHost` owns the Runtime handshake, proof, framed transport, deadlines, cancellation, lifecycle control, and granted dependency invocation. A process module supplies only an `IModuleService`, keeping transport and security plumbing consistent across repositories.
 
+`Murchalka.ModuleSdk.Node` provides transport-free Node capability registration and an execution context containing only the central-grant/local-policy intersection. The `templates/murchalka-node-module` template and multi-target packager keep Node facets independently buildable while releasing one immutable bundle version.
+
 ## Build and conformance
 
 The SDK consumes pinned `Murchalka.ModuleProtocol.*` packages from the `Murchalka-AI` GitHub Packages registry. Local development and CI use the same published package bytes so their lock-file content hashes remain identical.

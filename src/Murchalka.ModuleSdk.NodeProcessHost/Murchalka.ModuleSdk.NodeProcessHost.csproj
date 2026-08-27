@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><PackageId>Murchalka.ModuleSdk.NodeProcessHost</PackageId><Description>Authenticated process host for isolated Murchalka Node modules.</Description><GenerateDocumentationFile>true</GenerateDocumentationFile></PropertyGroup>
+  <ItemGroup><PackageReference Include="Murchalka.ModuleProtocol.Json" /><ProjectReference Include="../Murchalka.ModuleSdk.Node/Murchalka.ModuleSdk.Node.csproj" /></ItemGroup>
+</Project>
