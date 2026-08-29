@@ -159,9 +159,34 @@ public sealed class ModuleRepositoryConformance
             var artifactId = component["artifact"]!.GetValue<string>();
             if (!artifactIds.Contains(artifactId))
                 findings.Add(Error("ClientExtensionConformance", "ui-artifact-undeclared", artifactId, "UI component references an undeclared client artifact."));
-            var schema = component["schema"]!.GetValue<string>();
-            if (!TryResolveInsideRoot(root, schema, out var schemaPath) || !File.Exists(schemaPath))
-                findings.Add(Error("ClientExtensionConformance", "ui-schema-missing", schema, "UI component properties schema was not found."));
+            if (component["schema"] is JsonValue legacySchema)
+            {
+                ValidateUiSchema(root, legacySchema.GetValue<string>(), "properties", findings);
+                continue;
+            }
+
+            ValidateUiSchema(root, component["propertiesSchema"]!.GetValue<string>(), "properties", findings);
+            ValidateUiSchema(root, component["eventsSchema"]!.GetValue<string>(), "events", findings);
+        }
+    }
+
+    private static void ValidateUiSchema(string root, string reference, string kind, ICollection<ConformanceFinding> findings)
+    {
+        if (!TryResolveInsideRoot(root, reference, out var schemaPath) || !File.Exists(schemaPath))
+        {
+            findings.Add(Error("ClientExtensionConformance", $"ui-{kind}-schema-missing", reference, $"UI component {kind} schema was not found."));
+            return;
+        }
+
+        try
+        {
+            var schema = StructuredDocument.Load(schemaPath).AsObject();
+            if (schema["$schema"]?.GetValue<string>() != "https://json-schema.org/draft/2020-12/schema" || schema["type"] is null && schema["oneOf"] is null)
+                findings.Add(Error("ClientExtensionConformance", $"ui-{kind}-schema-invalid", reference, $"UI component {kind} schema must declare JSON Schema 2020-12 and a root type or oneOf."));
+        }
+        catch (Exception exception) when (exception is IOException or System.Text.Json.JsonException or InvalidOperationException)
+        {
+            findings.Add(Error("ClientExtensionConformance", $"ui-{kind}-schema-invalid", reference, exception.Message));
         }
     }
 
@@ -172,7 +197,14 @@ public sealed class ModuleRepositoryConformance
         if (manifest["artifacts"]?["client"] is JsonArray clientArtifacts)
             foreach (var artifact in clientArtifacts) yield return artifact!["entrypoint"]!.GetValue<string>();
         if (manifest["contributes"]?["ui"]?["components"] is JsonArray components)
-            foreach (var component in components) yield return component!["schema"]!.GetValue<string>();
+        {
+            foreach (var component in components)
+            {
+                if (component!["schema"] is JsonValue schema) yield return schema.GetValue<string>();
+                if (component["propertiesSchema"] is JsonValue propertiesSchema) yield return propertiesSchema.GetValue<string>();
+                if (component["eventsSchema"] is JsonValue eventsSchema) yield return eventsSchema.GetValue<string>();
+            }
+        }
         if (manifest["contributes"]?["events"] is JsonObject events)
         {
             foreach (var collection in new[] { "subscriptions", "publications" })
