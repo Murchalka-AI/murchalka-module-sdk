@@ -21,6 +21,8 @@ dotnet run --project src/Murchalka.ModuleSdk.Testing -- samples/hello-world
 
 The sample proves schema, contract/reference, lifecycle, cancellation, idempotency, permission, and undeclared-capability checks without requiring a Runtime.
 
+Phase 7 conformance also validates Client Extension and UI contribution documents, checks their manifest identity/version/mode/fallback linkage, and includes `client` and `client/{target}` artifacts in deterministic multi-target packaging. The SDK never signs placeholder Client Extension metadata: release packaging must replace it with an ECDSA signature from the same trusted publisher identity as the bundle.
+
 ## CI and releases
 
 GitHub Actions validates the solution on Linux, Windows, and macOS. Pull requests and pushes to `main` run restore, Release build, tests, the sample repository conformance command, and a NuGet packaging check. The resulting CI packages are retained as workflow artifacts for 14 days.

@@ -18,6 +18,7 @@ from pathlib import Path
 
 ZERO_DIGEST = "sha256:" + "0" * 64
 ARTIFACT_PATTERN = re.compile(r"- \{ id: ([a-z][a-z0-9-]*), mode: process, os: \[([^]]+)\], architectures: \[([^]]+)\], entrypoint: ([^, }]+), digest: \"sha256:[a-f0-9]{64}\"")
+CLIENT_ARTIFACT_PATTERN = re.compile(r"- \{ id: ([a-z][a-z0-9-]*), extensionId: [^,]+, extensionVersion: [^,]+, target: \[[^]]+\], mode: (?:declarative|wasm), entrypoint: ([^, }]+), digest: \"sha256:[a-f0-9]{64}\"")
 CAPABILITY_PATTERN = re.compile(r"- \{ id: ([a-z][a-z0-9.-]*), category: [^,]+, version: ([^,]+), contract: ([^,]+),")
 
 
@@ -40,7 +41,7 @@ def parse_arguments() -> argparse.Namespace:
 def copy_payload(repository: Path, stage: Path, mappings: list[str]) -> None:
     for mapping in mappings:
         target, separator, source = mapping.partition("=")
-        if not separator or not re.fullmatch(r"runtime/process|node/(linux|windows|macos)-(x64|arm64)", target):
+        if not separator or not re.fullmatch(r"runtime/process|node/(linux|windows|macos)-(x64|arm64)|client(?:/(?:web|desktop|mobile|xr))?", target):
             raise ValueError(f"Invalid target mapping: {mapping}")
         source_path = Path(source).resolve()
         if not source_path.is_dir():
@@ -73,6 +74,8 @@ def prepare_manifest(repository: Path, stage: Path, version: str) -> tuple[str, 
             target = "runtime"
         elif line == "  node:":
             target = "node"
+        elif line == "  client:":
+            target = "client"
         match = ARTIFACT_PATTERN.search(line)
         if match:
             artifact_id, _, _, entrypoint = match.groups()
@@ -82,6 +85,15 @@ def prepare_manifest(repository: Path, stage: Path, version: str) -> tuple[str, 
             digest = sha256(entrypoint_path.read_bytes())
             line = line.replace(ZERO_DIGEST, digest)
             artifacts.append((target, artifact_id, digest))
+        client_match = CLIENT_ARTIFACT_PATTERN.search(line)
+        if client_match:
+            artifact_id, entrypoint = client_match.groups()
+            entrypoint_path = stage / entrypoint
+            if not entrypoint_path.is_file():
+                raise FileNotFoundError(f"Manifest entrypoint is not packaged: {entrypoint}")
+            digest = sha256(entrypoint_path.read_bytes())
+            line = line.replace(ZERO_DIGEST, digest)
+            artifacts.append(("client", artifact_id, digest))
         lines.append(line)
     destination = stage / "manifest" / "murchalka.module.yaml"
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -107,7 +119,7 @@ def prepare_lock(stage: Path, manifest: str, version: str, revision: str, artifa
         "schemaVersion": 1,
         "module": {"id": module_id, "version": version, "bundleDigest": ZERO_DIGEST},
         "resolvedAt": "2026-01-01T00:00:00Z",
-        "runtimeVersion": "0.3.0",
+        "runtimeVersion": version,
         "dependencies": [],
         "artifacts": [{"target": target, "id": artifact_id, "digest": digest} for target, artifact_id, digest in artifacts],
         "contracts": contracts,

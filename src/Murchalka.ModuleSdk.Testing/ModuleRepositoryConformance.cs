@@ -45,6 +45,7 @@ public sealed class ModuleRepositoryConformance
 
         ValidateVersionRanges(manifest, manifestPath, findings);
         ValidateCapabilities(root, manifest, findings);
+        ValidateClientExtensions(root, manifest, findings);
         ValidateReferences(root, manifest, findings);
         ValidateOptionalFallbacks(manifest, manifestPath, findings);
         ValidatePermissionCoverage(manifest, manifestPath, findings);
@@ -93,9 +94,9 @@ public sealed class ModuleRepositoryConformance
             AddSchemaFindings(findings, "CapabilityContractConformance", reference, _schemas.ValidateJson("capability.schema.json", contract));
             if (contract["metadata"] is JsonObject metadata)
             {
-                Compare(metadata, "id", id, reference, findings);
-                Compare(metadata, "version", versionText, reference, findings);
-                Compare(metadata, "category", capability["category"]!.GetValue<string>(), reference, findings);
+                Compare(metadata, "id", id, reference, "CapabilityContractConformance", "contract-metadata-mismatch", "Contract", findings);
+                Compare(metadata, "version", versionText, reference, "CapabilityContractConformance", "contract-metadata-mismatch", "Contract", findings);
+                Compare(metadata, "category", capability["category"]!.GetValue<string>(), reference, "CapabilityContractConformance", "contract-metadata-mismatch", "Contract", findings);
             }
 
             foreach (var direction in new[] { "request", "response" })
@@ -118,10 +119,60 @@ public sealed class ModuleRepositoryConformance
         }
     }
 
+    private void ValidateClientExtensions(string root, JsonObject manifest, ICollection<ConformanceFinding> findings)
+    {
+        if (manifest["artifacts"]?["client"] is not JsonArray artifacts) return;
+        var artifactIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var node in artifacts)
+        {
+            var artifact = node!.AsObject();
+            var id = artifact["id"]!.GetValue<string>();
+            artifactIds.Add(id);
+            var reference = artifact["entrypoint"]!.GetValue<string>();
+            if (!TryResolveInsideRoot(root, reference, out var path) || !File.Exists(path))
+            {
+                findings.Add(Error("ClientExtensionConformance", "client-artifact-missing", reference, "Declared client extension artifact was not found."));
+                continue;
+            }
+
+            JsonObject envelope;
+            try { envelope = StructuredDocument.Load(path).AsObject(); }
+            catch (Exception exception) when (exception is IOException or System.Text.Json.JsonException)
+            {
+                findings.Add(Error("ClientExtensionConformance", "client-artifact-unreadable", reference, exception.Message));
+                continue;
+            }
+            AddSchemaFindings(findings, "ClientExtensionConformance", reference, _schemas.ValidateJson("client-extension.schema.json", envelope));
+            if (envelope["extension"] is JsonObject extension)
+            {
+                Compare(extension, "id", artifact["extensionId"]!.GetValue<string>(), reference, "ClientExtensionConformance", "client-metadata-mismatch", "Client Extension", findings);
+                Compare(extension, "version", artifact["extensionVersion"]!.GetValue<string>(), reference, "ClientExtensionConformance", "client-metadata-mismatch", "Client Extension", findings);
+                Compare(extension, "mode", artifact["mode"]!.GetValue<string>(), reference, "ClientExtensionConformance", "client-metadata-mismatch", "Client Extension", findings);
+                Compare(extension, "fallbackComponent", artifact["fallbackComponent"]!.GetValue<string>(), reference, "ClientExtensionConformance", "client-metadata-mismatch", "Client Extension", findings);
+            }
+        }
+
+        if (manifest["contributes"]?["ui"]?["components"] is not JsonArray components) return;
+        foreach (var node in components)
+        {
+            var component = node!.AsObject();
+            var artifactId = component["artifact"]!.GetValue<string>();
+            if (!artifactIds.Contains(artifactId))
+                findings.Add(Error("ClientExtensionConformance", "ui-artifact-undeclared", artifactId, "UI component references an undeclared client artifact."));
+            var schema = component["schema"]!.GetValue<string>();
+            if (!TryResolveInsideRoot(root, schema, out var schemaPath) || !File.Exists(schemaPath))
+                findings.Add(Error("ClientExtensionConformance", "ui-schema-missing", schema, "UI component properties schema was not found."));
+        }
+    }
+
     private static IEnumerable<string> EnumerateFileReferences(JsonObject manifest)
     {
         if (manifest["configuration"]?["schema"] is JsonValue configurationSchema) yield return configurationSchema.GetValue<string>();
         if (manifest["configuration"]?["defaults"] is JsonValue defaults) yield return defaults.GetValue<string>();
+        if (manifest["artifacts"]?["client"] is JsonArray clientArtifacts)
+            foreach (var artifact in clientArtifacts) yield return artifact!["entrypoint"]!.GetValue<string>();
+        if (manifest["contributes"]?["ui"]?["components"] is JsonArray components)
+            foreach (var component in components) yield return component!["schema"]!.GetValue<string>();
         if (manifest["contributes"]?["events"] is JsonObject events)
         {
             foreach (var collection in new[] { "subscriptions", "publications" })
@@ -189,11 +240,11 @@ public sealed class ModuleRepositoryConformance
         }
     }
 
-    private static void Compare(JsonObject metadata, string field, string expected, string location, ICollection<ConformanceFinding> findings)
+    private static void Compare(JsonObject metadata, string field, string expected, string location, string check, string rule, string subject, ICollection<ConformanceFinding> findings)
     {
         var actual = metadata[field]?.GetValue<string>();
         if (!string.Equals(actual, expected, StringComparison.Ordinal))
-            findings.Add(Error("CapabilityContractConformance", "contract-metadata-mismatch", location, $"Contract {field} '{actual}' does not match manifest '{expected}'."));
+            findings.Add(Error(check, rule, location, $"{subject} {field} '{actual}' does not match manifest '{expected}'."));
     }
 
     private static bool TryResolveInsideRoot(string root, string reference, out string path)

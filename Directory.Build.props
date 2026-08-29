@@ -9,7 +9,7 @@
     <Deterministic>true</Deterministic>
     <DebugType>embedded</DebugType>
     <RepositoryUrl>https://github.com/Murchalka-AI/murchalka-module-sdk</RepositoryUrl>
-    <PackageVersion>0.3.0</PackageVersion>
+    <PackageVersion>0.4.0</PackageVersion>
     <Authors>Murchalka</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
