@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Murchalka.ModuleSdk.Abstractions/Murchalka.ModuleSdk.Abstractions.csproj" />
+    <ProjectReference Include="../../src/Murchalka.ModuleSdk.Protocols/Murchalka.ModuleSdk.Protocols.csproj" />
     <ProjectReference Include="../../src/Murchalka.ModuleSdk.Testing/Murchalka.ModuleSdk.Testing.csproj" />
     <ProjectReference Include="../../samples/hello-world/src/Murchalka.Hello.Module/Murchalka.Hello.Module.csproj" />
   </ItemGroup>

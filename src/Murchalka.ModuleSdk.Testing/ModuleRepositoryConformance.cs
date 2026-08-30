@@ -45,6 +45,7 @@ public sealed class ModuleRepositoryConformance
 
         ValidateVersionRanges(manifest, manifestPath, findings);
         ValidateCapabilities(root, manifest, findings);
+        ValidateProtocolContributions(root, manifest, findings);
         ValidateClientExtensions(root, manifest, findings);
         ValidateReferences(root, manifest, findings);
         ValidateOptionalFallbacks(manifest, manifestPath, findings);
@@ -107,6 +108,28 @@ public sealed class ModuleRepositoryConformance
                 if (!TryResolveInsideRoot(root, Path.GetRelativePath(root, Path.Combine(contractDirectory, schemaReference)), out var schemaPath) || !File.Exists(schemaPath))
                     findings.Add(Error("CapabilityContractConformance", $"{direction}-schema-missing", schemaReference, $"Capability {direction} schema was not found inside the module."));
             }
+        }
+    }
+
+    private static void ValidateProtocolContributions(string root, JsonObject manifest, ICollection<ConformanceFinding> findings)
+    {
+        if (manifest["contributes"]?["protocols"] is not JsonArray protocols) return;
+        var capabilities = manifest["provides"]?["capabilities"]?.AsArray()
+            .Select(value => value!["id"]!.GetValue<string>()).ToHashSet(StringComparer.Ordinal) ?? [];
+        var routes = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var node in protocols)
+        {
+            var contribution = node!.AsObject();
+            var id = contribution["id"]!.GetValue<string>();
+            var route = contribution["routeNamespace"]!.GetValue<string>();
+            var handler = contribution["handler"]!.GetValue<string>();
+            var descriptor = contribution["descriptor"]!.GetValue<string>();
+            if (!routes.Add(route))
+                findings.Add(Error("ProtocolContributionConformance", "duplicate-route-namespace", route, $"Protocol route namespace '{route}' is declared more than once."));
+            if (!capabilities.Contains(handler))
+                findings.Add(Error("ProtocolContributionConformance", "handler-capability-undeclared", id, $"Protocol handler '{handler}' is not declared by this module."));
+            if (!TryResolveInsideRoot(root, descriptor, out var descriptorPath) || !File.Exists(descriptorPath))
+                findings.Add(Error("ProtocolContributionConformance", "descriptor-missing", descriptor, "Protocol discovery descriptor was not found inside the module."));
         }
     }
 
@@ -205,6 +228,8 @@ public sealed class ModuleRepositoryConformance
                 if (component["eventsSchema"] is JsonValue eventsSchema) yield return eventsSchema.GetValue<string>();
             }
         }
+        if (manifest["contributes"]?["protocols"] is JsonArray protocols)
+            foreach (var protocol in protocols) yield return protocol!["descriptor"]!.GetValue<string>();
         if (manifest["contributes"]?["events"] is JsonObject events)
         {
             foreach (var collection in new[] { "subscriptions", "publications" })

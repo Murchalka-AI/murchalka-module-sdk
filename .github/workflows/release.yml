@@ -100,6 +100,7 @@ jobs:
             src/Murchalka.ModuleSdk.ProcessHost/Murchalka.ModuleSdk.ProcessHost.csproj
             src/Murchalka.ModuleSdk.Node/Murchalka.ModuleSdk.Node.csproj
             src/Murchalka.ModuleSdk.NodeProcessHost/Murchalka.ModuleSdk.NodeProcessHost.csproj
+            src/Murchalka.ModuleSdk.Protocols/Murchalka.ModuleSdk.Protocols.csproj
             src/Murchalka.ModuleSdk.Testing/Murchalka.ModuleSdk.Testing.csproj
           )
           for project in "${projects[@]}"; do

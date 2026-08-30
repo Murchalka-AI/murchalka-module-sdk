@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Murchalka.ModuleSdk.Protocols</PackageId>
+    <Description>Transport-neutral protocol route registration, streaming, cancellation, and limits for Murchalka modules.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+</Project>

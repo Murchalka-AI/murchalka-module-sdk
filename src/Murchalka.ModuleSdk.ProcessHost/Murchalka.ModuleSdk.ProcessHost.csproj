@@ -5,6 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../Murchalka.ModuleSdk.Abstractions/Murchalka.ModuleSdk.Abstractions.csproj" />
     <PackageReference Include="Murchalka.ModuleProtocol.Contracts" />
     <PackageReference Include="Murchalka.ModuleProtocol.Json" />
   </ItemGroup>

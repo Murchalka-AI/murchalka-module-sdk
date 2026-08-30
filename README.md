@@ -6,6 +6,8 @@ The SDK boundary for independently built Murchalka modules. It contains transpor
 
 `Murchalka.ModuleSdk.Node` provides transport-free Node capability registration and an execution context containing only the central-grant/local-policy intersection. The `templates/murchalka-node-module` template and multi-target packager keep Node facets independently buildable while releasing one immutable bundle version.
 
+`Murchalka.ModuleSdk.Protocols` provides transport-neutral hot route registration, bounded dispatch, backpressure, ordered progress events, and cancellation on peer disconnect, route removal, disable, or deadline. It contains no MCP or A2A semantics.
+
 ## Build and conformance
 
 The SDK consumes pinned `Murchalka.ModuleProtocol.*` packages from the `Murchalka-AI` GitHub Packages registry. Local development and CI use the same published package bytes so their lock-file content hashes remain identical.
